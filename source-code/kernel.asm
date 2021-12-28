@@ -50,9 +50,6 @@ je proc_del
 cmp al,0x0D
 je proc_command
 
-
-
-
 mov byte [bx],al
 
 
@@ -159,6 +156,8 @@ jmp input_shell
 
 proc_dft:
 call newLine
+mov si,filetablestr
+call printn
 call displayft
 jmp shell_start
 
@@ -232,6 +231,7 @@ jmp haltloop
 ;;include files
 
 %include "osfuncs.asm"
+%include "del_proc.asm"
 %include "graphics.asm"
 
 ;;data
@@ -264,10 +264,11 @@ str2:  db   0x0D," Welcome To VenomOS",0xA,0xD," "
 str3 : db 20 dup "*",0xA,0xA,0xD,0
 graphics_return_string:  db   "Press any key to return >>>>>",0xA,0xD,0
 
-filetablestr:  db  "file name         sector",0x0A,0x0D,"---------         ------",0x0A,0x0D,0
+filetablestr:  db  "File name|File type|Directory entry|Starts at sector|Size (0x01 = 512KB) ",0x0A,0x0D,0
+                   
                            
 cmd:   db ""                          
 ;;;;;;;;;;;;;;;
 
 
-times 1024-($-$$) db 0
+times 2048-($-$$) db 0

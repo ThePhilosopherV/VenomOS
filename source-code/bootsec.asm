@@ -4,7 +4,7 @@
 [ORG 0x7C00] 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-;load filetable to memory starting address 0x1000
+;load filetable to memory  address 0x1000
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 mov bx,0x1000
@@ -15,20 +15,20 @@ mov bx,0
 mov dh,0 ;head 0
 mov dl,0 ;0x00 for first floppy dsik , 0x80 for first hard drive
 mov ch,0 ;cylinder 0
-mov cl,0x02 ; starting sector to read from loadFromDisk
+mov cl,6 ; starting sector to read from loadFromDisk
 
 readfiletable:
 
 mov ah,0x02 ;bios code funtion to read from disk/int 0x13
 
-mov al,0x1 ;num of sectors to read
+mov al,0x01 ;num of sectors to read
 
 int 0x13 ; bios interrupt for disk services
 
 jc readfiletable ;cary flag is set if error accured when read disk
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-;load kernel to memory starting address 0x2000
+;load kernel to memory  address 0x2000
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 mov bx,0x2000
@@ -39,13 +39,13 @@ mov bx,0
 mov dh,0 ;head 0
 mov dl,0 ;0x00 for first floppy dsik , 0x80 for first hard drive
 mov ch,0 ;cylinder 0
-mov cl,0x03 ; starting sector to read from 
+mov cl,2 ; starting sector to read from 
 
 readkernel:
 
 mov ah,0x02 ;bios code funtion to read from disk/int 0x13
 
-mov al,0x2 ;num of sectors to read 
+mov al,4 ;num of sectors to read 
 
 int 0x13 ; bios interrupt for disk services
 

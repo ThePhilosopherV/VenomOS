@@ -168,106 +168,65 @@ ret
 ;display file table
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-displayft: ;takes address offset as argument
+displayft: ;
 
 pusha
 
-call newLine
-mov si,filetablestr
-call printn
-
-
-
 mov bx,0x1000
 mov es,bx
-mov bx,1
+mov bx,0
 
-mov dx,0
-hdft:
-
-inc dx
-mov al,[es:bx]
-cmp al,0
-je retdft
-
-
-cmp al,"-"
-je psectorn
-
-
-mov ah,0x0e
-int 0x10
-inc bx
-jmp hdft
-psectorn:
-mov ax,19
-sub ax,dx
-mov cx,ax
-l:
-mov ah,0x0e
-mov al," "
-int 0x10
-loop l
-
-
-
-l2:
-inc bx
-mov al,[es:bx]
-cmp al,","
-je l3
-cmp al,"}"
-je l3
-mov ah,0x0e
-int 0x10
-jmp l2
-l3:
-
+fb:
 
 call newLine
+
+
+mov dx,1
+f:
+mov al,[es:bx]
+
+cmp al,0xed
+je ret_dft
+
+mov ah,0x0e
+int 0x10
+
 inc bx
+
+cmp al,0
+jne f
+cmp dx,0
+je prnt_hexvalues
+mov al,"|"
+int 0x10
 mov dx,0
-;mov bx,es
-;call printHex
+jmp f
 
-jmp hdft
+prnt_hexvalues:
+push ax
+mov ah,0x0e
+mov al,"|"
+int 0x10
+pop ax
 
-retdft:
+push bx
+xor bx,bx
+mov bl,al
+call printHex
+pop bx
+
+inc bx
+inc dx
+mov al,[es:bx]
+cmp dx,3
+
+je fb
+jmp prnt_hexvalues
+
+ret_dft:
 popa
 ret
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;process delete character
-;;;;;;;;;;;;;;;;;;;;;;;
-deleteProcess:
-
-;cmp byte [bx-1],0
-;je hshell
-
-dec bx
-
-mov byte [bx],0
-
-;call newLine
-;mov si,cmd
-;call printn
-;call newLine
-
-mov ah,0x0e
-mov al,0x0D
-int 0x10
-
-mov si,shellstr
-call printn
-
-mov si,cmd
-call printn
-
-mov ah,0x0e
-mov al," "
-int 0x10
-
-ret
 
 
 
