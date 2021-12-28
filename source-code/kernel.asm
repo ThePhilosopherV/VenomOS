@@ -123,6 +123,14 @@ call cmpstr
 cmp al,0
 je print_help
 
+;mov si,cmd
+;mov bx,install
+
+;call cmpstr
+
+;cmp al,0
+;je install_sys
+
 
 jmp shell_start
 
@@ -156,7 +164,24 @@ jmp shell_start
 
 
 graphics:
+mov dx,100  ;row coordinate
+mov cx,120 ;colmumn coordinate
+mov al,6 ;suqre color
+mov di,50 ;square length
+
+sl:
+
 call graphics_mode
+inc dx
+inc cx
+inc al
+jmp sl
+
+;call suquare_draw
+;fsqrt
+
+;mov si,graphics_return_string
+;call printn
 jmp system_start
 
 print_help:
@@ -165,6 +190,27 @@ call newLine
 mov si,help_commands
 call printn
 jmp shell_start
+
+;install_sys:
+
+;pusha
+
+;xor ax,ax
+;mov ax,0
+;mov cx,0001h ;cylinder 0,sector 1
+;mov dx,0080h ;head 0,drive 80h 0th hard disk
+;mov bx,7c00h ;segment offset of the buffer  7c00:0000
+;mov ax,0304h ;ah=3 disk write,al=4 num of sectors
+;int 13h
+;jc install_sys
+
+;call newLine
+;mov si,sys_inst_str
+;call printn
+
+;popa
+;jmp shell_start
+
 
 system_reboot:
 
@@ -179,12 +225,14 @@ jmp 0xFFFF:0
 ;call printHex
 
 haltloop:hlt
+cli
 
 jmp haltloop
 
 ;;include files
 
 %include "osfuncs.asm"
+%include "graphics.asm"
 
 ;;data
 
@@ -196,6 +244,7 @@ dft:    db  "dft",0       ;display file table
 clr:     db   "clr",0       ;clear screen
 magic:   db  "magic",0  ; graphics mode
 help:   db   "help",0
+install:  db  "install",0 ;install os
 
 help_commands:  db  "dft    : display file table",0x0A,0x0D
                 db  "clr    : clear screen ",0x0A,0x0D
@@ -203,7 +252,7 @@ help_commands:  db  "dft    : display file table",0x0A,0x0D
                 db  "reboot : reboot system",0x0A,0x0D
                 db  "help   : print this help message",0x0A,0x0D,0
   
-
+sys_inst_str:   db   "system installed",0
 
 
 shellstr:   db  "=>vShell_$ ",0
@@ -213,6 +262,7 @@ str1 :  db " "
 
 str2:  db   0x0D," Welcome To VenomOS",0xA,0xD," "
 str3 : db 20 dup "*",0xA,0xA,0xD,0
+graphics_return_string:  db   "Press any key to return >>>>>",0xA,0xD,0
 
 filetablestr:  db  "file name         sector",0x0A,0x0D,"---------         ------",0x0A,0x0D,0
                            

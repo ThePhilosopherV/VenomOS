@@ -268,54 +268,6 @@ mov al," "
 int 0x10
 
 ret
-graphics_mode:
-pusha
-;;;;;;;;;;;;;;;;;;;;;;;
-;graphics mode
-;;;;;;;;;;;;;;;;;;;;;;;
-
-mov ah,0x00  ; int 0x10 /ah = 0x00 = set video mode
-
-mov al,0x13 ; 320x200 , 256 color graphics mode
-
-int 0x10
-
-mov ah,0x0C ; int 0x10 / ah = 0x0C write graphics pixel
-
- ; column
-mov dx,80; row 
-mov cx,100 ; column
-mov al,0x00
-square:
-; blue
-mov bh,0x00 ; page
- 
-
-int 0x10
-
-inc cx ; column
-cmp cx,200
-jne square
-
-inc dx ;row
-cmp dx,180
-
-je retgraphicsmode
-mov cx,80
-inc al
-;pusha
-;mov ax,0x00
-;int 0x16
-;popa
-jmp square
-
-retgraphicsmode:
-
-mov ax,0x00
-int 0x16
-popa
-ret
-
 
 
 
