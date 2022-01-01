@@ -26,6 +26,15 @@ ret
 
 printHex:
 pusha
+
+mov ah,0x0e
+mov al,"0"
+int 0x10
+
+mov ah,0x0e
+mov al,"x"
+int 0x10
+
 mov cl,0
 
 mov dx,bx
@@ -195,6 +204,7 @@ inc bx
 
 cmp al,0
 jne f
+
 cmp dx,0
 je prnt_hexvalues
 mov al,"|"
@@ -227,6 +237,98 @@ ret_dft:
 popa
 ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;load program from file table;to memory address 0x8000
+;filename is in si
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+load_file:
+
+pusha
+add cx,2
+
+mov di,0x1000
+mov es,di
+mov di,0
+
+;cx has command length
+aids:
+mov dx,0
+
+push si
+
+lfh:
+
+mov al,byte [si]
+mov bl,byte [es:di]
+
+cmp bl,0xed
+je ret_lf
+
+inc di
+inc si
+inc dx
+cmp al,bl
+je lfh
+
+
+;xor bx,bx
+;mov bl,byte [es:di+4]
+;call printHex
+
+;jmp $
+cmp cx,dx
+je load_tomem
+
+lk:
+
+cmp byte [es:di],0
+je hj
+inc di
+jmp lk
+hj:
+
+add di,8
+
+
+pop si
+jmp aids
+
+load_tomem:
+
+
+;jmp $
+mov cl,byte [es:di+4] ; starting sector to read from loadFromDisk
+mov al,byte [es:di+5] ;num of sectors to read
+
+mov bx,0x8000
+mov es,bx
+mov bx,0
+
+mov dh,0 ;head 0
+mov dl,0 ;0x00 for first floppy dsik , 0x80 for first hard drive
+mov ch,0 ;cylinder 0
+
+
+mov ah,0x02 ;bios code funtion to read from disk/int 0x13
+
+int 0x13 ; bios interrupt for disk services
+
+jc load_tomem
+
+mov ax,0x8000
+mov ds,ax ;data segment
+mov fs,ax ; extra segment
+mov gs,ax
+mov es,ax
+mov ss,ax ;stack segment
+
+jmp 0x8000:0
+
+ret_lf:
+pop si
+popa
+ret
 
 
 

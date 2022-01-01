@@ -1,5 +1,3 @@
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;Clears the screen and changes the background color
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -37,10 +35,12 @@ call fillcmdzeros ; lets make sure cmd variable is empty
 
 mov si,bx 
 call printn
+mov cx,0
 input_shell:
 
 mov ax,0   ;0x16/0  function to take user input keytroke is stored in al 
 int 0x16
+
 
 cmp al,0x08 ;process delete character
 je proc_del
@@ -55,12 +55,14 @@ mov byte [bx],al
 
 mov ah,0x0e ;print character
 int 0x10
-
+inc cx
 inc bx
 
 jmp input_shell
 ;;check command and execute
 proc_command:
+;mov bx,cx
+;call printHex
 
 cmp byte [cmd] , 0 ;lets make sure we have a command
 je shell_start
@@ -127,13 +129,16 @@ je print_help
 
 ;cmp al,0
 ;je install_sys
+mov si,cmd
+call load_file
+
 
 
 jmp shell_start
 
 
 proc_del:
-
+dec cx
 cmp byte [cmd] , 0 ;did  we delete all command characters ?
 je input_shell
 
@@ -174,8 +179,8 @@ call graphics_mode
 inc dx
 inc cx
 inc al
-jmp sl
-
+cmp cx,140
+jne sl
 ;call suquare_draw
 ;fsqrt
 
