@@ -14,7 +14,7 @@ db	"bootsec",0,"ins",0,00h,01h,01h
 db  "kernel",0,"ins",0,00h,02h,04h
 db  "filetable",0,"ent",0,00h,06h,01h
 db  "program",0,"ins",0,00h,07h,01h
-db  "fakeProg",0,"ins",0,00h,08h,01h
+db  "mce",0,"ins",0,00h,08h,02h
 db  0xed
-
+;
 times 512-($-$$)  db 0

@@ -255,6 +255,7 @@ help_commands:  db  "dft    : display file table",0x0A,0x0D
                 db  "clr    : clear screen ",0x0A,0x0D
                 db  "magic  : travel to graphics land",0x0A,0x0D
                 db  "reboot : reboot system",0x0A,0x0D
+                db  "mce   : machine code executor",0x0A,0x0D,0
                 db  "help   : print this help message",0x0A,0x0D,0
   
 sys_inst_str:   db   "system installed",0
@@ -269,7 +270,7 @@ str2:  db   0x0D," Welcome To VenomOS",0xA,0xD," "
 str3 : db 20 dup "*",0xA,0xA,0xD,0
 graphics_return_string:  db   "Press any key to return >>>>>",0xA,0xD,0
 
-filetablestr:  db  "File name|File type|Directory entry|Starts at sector|Size (0x01 = 512KB) ",0x0A,0x0D,0
+filetablestr:  db  "File name|File type|Directory entry|Starts at sector|Size (0x01 = 512 Bytes) ",0x0A,0x0D,0
                    
                            
 cmd:   db ""                          

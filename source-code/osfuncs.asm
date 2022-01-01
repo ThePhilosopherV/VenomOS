@@ -329,14 +329,57 @@ ret_lf:
 pop si
 popa
 ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;jump to kernel
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+jtokernel:
+pusha
 
+mov ax,0x2000
+mov ds,ax ;data segment
+mov fs,ax ; extra segment
+mov gs,ax
+mov es,ax
+mov ss,ax ;stack segment
 
+jmp 0x2000:0
 
+popa
+ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;pause and continue after a character is pressed
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+pause:
 
+pusha
+mov ax,0
+int 0x16
 
+popa
+ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;get character from stdin,char will be in al
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+getchar:
+mov ax,0
+int 0x16
+ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;print char , chat should be in al
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+pchar:
+
+mov ah,0x0e
+int 0x10
+
+ret
 
 
 
