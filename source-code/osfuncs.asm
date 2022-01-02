@@ -143,7 +143,7 @@ int 0x10 ; bios video service
 
 mov ah,0x0B
 mov bh,0x0 ;change background color
-mov bl,0x0 ;black
+mov bl,0x4 ;black
 int 0x10
 
 
@@ -381,7 +381,30 @@ int 0x10
 
 ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;write to video memory (text mode)
+;bx :offset to write to
+;si: string address
+;ah: color
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+writeto_vidmem:      ;[mystr]     ;character
+pusha      
+
+mov di,0
+mloop:
+
+mov al,byte[si]    ;yellow
+
+mov word [es:bx],ax
+
+inc si
+add bx,2
+cmp byte [si],0
+jne mloop
+
+popa
+ret
 
 
 
