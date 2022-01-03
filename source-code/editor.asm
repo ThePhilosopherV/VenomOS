@@ -21,7 +21,7 @@ call writeto_vidmem
 mov ax,0x8000
 mov es,ax
 
-
+mov di,0
 h:
 call getchar
 cmp al,0x11
@@ -49,9 +49,6 @@ jmp h
 
 
 quit:
-mov si,buffer
-call printn
-call pause
 
 call jtokernel
 
@@ -59,6 +56,11 @@ call jtokernel
 
 
 save:
+
+;mov si,buffer
+;call printn
+
+
 mov ax,vidmem
 mov es,ax
     
@@ -112,10 +114,10 @@ jmp anotherlabelhere
 anotherfuckinglabel:
 ;;; now we're in the bottom of the file table,i know you liked the word bottom you sickkunt
 
-mov dl,byte [es:bx-2] ; last sector
+mov dl,byte [es:bx-2] ; starting sector
 mov dh,byte [es:bx-1] ;last file size
 
-push dx
+;push dx
 
 
 mov si,filename
@@ -146,7 +148,7 @@ mov word [es:bx],0x0000
 add bx,2
 
 
-pop dx
+;pop dx
 
 ;push dx
 ;mov bx,dx
@@ -166,6 +168,55 @@ inc bx
 mov byte [es:bx],0xed
 
 writefilecontentodisk:
+
+;mov si,buffer
+;call printn
+
+;call pause
+mov bx,0x8000
+mov es,bx
+
+lea bx,buffer;    ES:BX -> buffer
+
+;call printHex
+
+;call pause
+;mov es,bx
+;mov bx,0
+
+
+mov ah,0x03;    Set AH = 2 to read , ah = 3 to write to disk
+mov al,dl;    number of sectors
+mov ch,0;    CH = cylinder & 0xff
+mov cl,dh;    starting sector;
+mov dh,0;    DH = Head -- may include two more cylinder bits
+
+mov dl,0
+int 0x13
+
+jc writefilecontentodisk
+
+;    Set DL = "drive number" -- typically 0x80, for the "C" drive
+;    Issue an INT 0x13. 
+
+;The carry flag will be set if there is any error during the read. AH should be set to 0 on success.
+
+;To write: set AH to 3, instead. 
+updatefiletableonthedisk:
+mov bx,0x1000
+mov es,bx
+mov bx,0
+
+mov ah,0x03;    Set AH = 2 to read , ah = 3 to write to disk
+mov al,0x01;    number of sectors
+mov ch,0;    CH = cylinder & 0xff
+mov cl,0x06;    starting sector
+mov dh,0;    DH = Head -- may include two more cylinder bits
+
+mov dl,0
+int 0x13
+
+jc updatefiletableonthedisk
 
 
 call jtokernel
