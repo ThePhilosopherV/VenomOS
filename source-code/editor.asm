@@ -104,6 +104,9 @@ mov di,0
 kkk:
 call getchar
 
+cmp al,0x08
+je savedelproc
+
 cmp al,0x0D
 je addfileto_filetable
 
@@ -111,6 +114,33 @@ je addfileto_filetable
 mov byte [filename+di],al 
 inc di
 call pchar
+
+jmp kkk
+
+savedelproc:
+
+cmp byte [filename] , 0 ;did  we delete all command characters ?
+je kkk
+
+dec di
+
+mov byte [filename+di],0
+
+
+
+mov ah,0x0e ;print a backspace which will move the cursor one char to the left
+mov al,0x08
+int 0x10
+
+mov ah,0x0e ;print a space
+mov al," "
+int 0x10
+
+mov ah,0x0e ;print a backspace which will move the cursor one char to the left
+mov al,0x08
+int 0x10
+
+
 
 jmp kkk
 
