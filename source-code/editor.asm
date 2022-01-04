@@ -21,7 +21,11 @@ call writeto_vidmem
 mov ax,0x8000
 mov es,ax
 
+mov cx,0
+mov si,0
+htop:
 mov di,0
+ ; this is gonna be used as counter for num of characters per each line 
 h:
 call getchar
 cmp al,0x11
@@ -30,8 +34,12 @@ je quit
 cmp al,0x13
 je save
 
+cmp al,0x08 ;process delete character
+je proc_del
+
 mov byte [buffer+di],al
 inc di
+inc cx
 
 cmp al,0x0d
 je printnewline
@@ -41,8 +49,19 @@ call pchar
 jmp h
 
 printnewline:
+;mov bx,cx
+;call printHex
+dec cx
+mov byte [cursor_line+si],cl
+inc si
+;mov bx,cx
+;call printHex
+
+
 mov byte [buffer+di],0x0A
 inc di
+mov cx,0
+
 call newLine
 call pchar
 jmp h
@@ -74,7 +93,7 @@ call writeto_vidmem
 mov ax,0x8000
 mov es,ax
 ; move cursor
-mov ah,0x02    ;AH = 0x02
+mov ah,0x02    ;int 0x10 /AH = 0x02 :move cursor
 mov bh,0    ;BH = display page (usually, if not always 0)
 mov dh,23    ;DH = row
 mov dl,len    ;DL = column
@@ -94,6 +113,72 @@ inc di
 call pchar
 
 jmp kkk
+
+proc_del:
+
+cmp byte [buffer] , 0 ;did  we delete all command characters ?
+je htop
+
+dec di
+dec cx
+mov byte [buffer+di],0
+
+
+
+mov ah,0x0e ;print a backspace which will move the cursor one char to the left
+mov al,0x08
+int 0x10
+
+mov ah,0x0e ;print a space
+mov al," "
+int 0x10
+
+mov ah,0x0e ;print a backspace which will move the cursor one char to the left
+mov al,0x08
+int 0x10
+
+cmp byte [buffer+di-1],0x0d
+je movecursortopreviousline
+
+jmp h
+
+movecursortopreviousline:
+; Get Cursor Data
+
+;    AH = 0x03
+;    BH = display page (usually, if not always 0) 
+
+;The return values:
+
+;    CH = start scanline
+;    CL = end scanline
+;    DH = row
+;    DL = column 
+push bx
+mov ah,0x03
+mov bh,0
+int 0x10  ;returns dh=row , dl=column
+
+
+dec di
+mov byte [buffer+di],0
+
+;mov bx,dx
+;call printHex
+
+mov ah,0x02    ;int 0x10 /AH = 0x02 :move cursor
+mov bh,0    ;BH = display page (usually, if not always 0)
+dec dh  ;DH = row
+
+dec si
+mov dl,byte [cursor_line+si]    ;DL = column
+int 0x10    ;int 0x10
+
+
+
+;call pause
+
+jmp h
 
 
 addfileto_filetable:
@@ -238,6 +323,8 @@ call jtokernel
 
 vidmem:  equ    0x0B800
 filename:  db  50  dup 0
+cursor_line:   db 23  dup 0  ;cursor column num for everyline
+counter:   db     0
 mystr:  db   "^Press Ctrl+s to save the file     |    ^Press Ctrl+q to quit",0
 save_str:  db   "Save file as (input file name then press enter): ",0
 len: equ $-save_str-1
