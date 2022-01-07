@@ -132,7 +132,7 @@ je print_help
 mov si,cmd
 call load_file
 
-
+call asm
 
 jmp shell_start
 
@@ -238,6 +238,7 @@ jmp haltloop
 %include "osfuncs.asm"
 %include "del_proc.asm"
 %include "graphics.asm"
+%include "asm.asm"
 
 ;;data
 
@@ -250,12 +251,14 @@ clr:     db   "clr",0       ;clear screen
 magic:   db  "magic",0  ; graphics mode
 help:   db   "help",0
 install:  db  "install",0 ;install os
+;assemble:   db  "asm",0  ; assemble source file
 
 help_commands:  db  "dft    : display file table",0x0A,0x0D
                 db  "clr    : clear screen ",0x0A,0x0D
                 db  "magic  : travel to graphics land",0x0A,0x0D
                 db  "reboot : reboot system",0x0A,0x0D
-                db  "mce   : machine code executor",0x0A,0x0D,0
+                db  "mce    : machine code executor",0x0A,0x0D
+                db  "asm    : assemble file source",0x0A,0x0D
                 db  "help   : print this help message",0x0A,0x0D,0
   
 sys_inst_str:   db   "system installed",0
@@ -277,4 +280,4 @@ cmd:   db ""
 ;;;;;;;;;;;;;;;
 
 
-times 2048-($-$$) db 0
+times 3072-($-$$) db 0

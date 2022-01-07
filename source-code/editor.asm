@@ -104,6 +104,9 @@ mov di,0
 kkk:
 call getchar
 
+cmp al,0x11
+je quit
+
 cmp al,0x08
 je savedelproc
 
@@ -362,6 +365,6 @@ len: equ $-save_str-1
 buffer:   db    ""
 
 
-times 1024-($-$$) db 0
+times 2048-($-$$) db 0
 
 

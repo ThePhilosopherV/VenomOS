@@ -238,7 +238,7 @@ popa
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;load program from file table;to memory address 0x8000
+;load program from file table;to memory address 0x8000; and jump to execute
 ;filename is in si
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -406,6 +406,106 @@ jne mloop
 popa
 ret
 
+;;;;;;;;;;;;;;;;;;;;;;
+;;;load file to memory address 0x8000
+;;;;;;;;;;;;;;;;;;;;;;
+
+load_f:
+
+pusha
+add cx,2
+
+mov di,0x1000
+mov es,di
+mov di,0
+
+;cx has command length
+aidss:
+mov dx,0
+
+push si
+
+lfhh:
+
+
+mov al,byte [si]
+mov bl,byte [es:di]
+
+
+;mov al,bl
+;call pchar
+
+;call pause
+
+cmp bl,0xed
+je ret_f
+
+inc di
+inc si
+inc dx
+cmp al,bl
+je lfhh
+
+
+;xor bx,bx
+;mov bl,byte [es:di+4]
+;call printHex
+
+;jmp $
+cmp cx,dx
+je load_tomemo
+
+lkk:
+
+cmp byte [es:di],0
+je hjj
+inc di
+jmp lkk
+hjj:
+
+add di,8
+
+
+pop si
+jmp aidss
+
+load_tomemo:
+
+
+
+;jmp $
+mov cl,byte [es:di+4] ; starting sector to read from loadFromDisk
+mov al,byte [es:di+5] ;num of sectors to read
+
+mov bx,0x8000
+mov es,bx
+mov bx,0
+
+mov dh,0 ;head 0
+mov dl,0 ;0x00 for first floppy dsik , 0x80 for first hard drive
+mov ch,0 ;cylinder 0
+
+
+mov ah,0x02 ;bios code funtion to read from disk/int 0x13
+
+int 0x13 ; bios interrupt for disk services
+
+jc load_tomemo
+
+;mov ax,0x8000
+;mov ds,ax ;data segment
+;mov fs,ax ; extra segment
+;mov gs,ax
+;mov es,ax
+;mov ss,ax ;stack segment
+
+;jmp 0x8000:0
+
+ret_f:
+
+pop si
+popa
+ret
 
 
 

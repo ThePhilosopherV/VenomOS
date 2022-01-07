@@ -15,7 +15,7 @@ mov bx,0
 mov dh,0 ;head 0
 mov dl,0 ;0x00 for first floppy dsik , 0x80 for first hard drive
 mov ch,0 ;cylinder 0
-mov cl,6 ; starting sector to read from loadFromDisk
+mov cl,8 ; starting sector to read from loadFromDisk
 
 readfiletable:
 
@@ -45,7 +45,7 @@ readkernel:
 
 mov ah,0x02 ;bios code funtion to read from disk/int 0x13
 
-mov al,4 ;num of sectors to read 
+mov al,6 ;num of sectors to read 
 
 int 0x13 ; bios interrupt for disk services
 
