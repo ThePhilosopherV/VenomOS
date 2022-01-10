@@ -26,7 +26,6 @@ inc bx        ;  43
                      
 ;__________________________
 
-
 mov al,x      ;   b0 x
 mov cl,x      ;   b1 x
 mov dl,x      ;   b2 x

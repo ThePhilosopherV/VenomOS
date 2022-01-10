@@ -506,7 +506,12 @@ ret_f:
 pop si
 popa
 ret
-
+;;;;;;;;;;;;;;;;;;;;
+test:
+mov al,"T"
+call pchar
+call pause
+ret
 
 
 
