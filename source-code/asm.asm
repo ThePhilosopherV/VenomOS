@@ -7,7 +7,7 @@ pusha
 ;call getchar
 
 mov bx,0
-
+;;;; is the assembler being called ?
 asm_hloop:
 lodsb
 
@@ -27,14 +27,15 @@ checkspaces:
 
 lodsb
 
-ccb:
+
+ccb: ;;;;;; skip spaces
 inc bx
 cmp al,space
 
 je checkspaces
 
 cmp al,0
-je noarg_error
+je noarg_error ;;;; asm cmd with no arg, rise err
 ;;;;;;;;;;; lets check if file exists in filetable
 sub cx,bx
 
@@ -58,7 +59,7 @@ mov bx,0
 
 
 
-mov dx,1    ;line counter
+;line counter
 ;;;;;;;;;;;; lets process  our dear source file
 skip_spacesonfirstline:
 
@@ -72,6 +73,7 @@ jmp skip_spacesonfirstline
 checkinst:
 
 mov si,mov_in
+;call printn
 
 mov cx,0
 ;;;;;;;;;;;;;;is it  mov in ? mov instruction processing
@@ -94,7 +96,7 @@ je pmov
 
 jmp asm_ret
 
-;;;;;;;;;;;; here we're sure it is
+;;;;;;;;;;;; here we're sure it is a mov ins
 pmov:
 
 ;lets  skip spaces
@@ -114,7 +116,7 @@ jmp skip_spacess
 check_inst:
 cmp cx,0
 
-je error
+je error ; mov only ? rise er
 
 
 
@@ -132,18 +134,9 @@ loop .loly
 
 jmp badargerror
 
-
-
-
-
 p_al:
 
-
-
-
 add bx,2
-
-
 
 skip_spaces_al:
 
@@ -232,20 +225,29 @@ inc bx
 jmp looks
 
 alife:
-
+;skip new lines 
 ;check if 
 cmp byte [es:bx],0x0D
 je good_inst
 
 
 cmp byte [es:bx],0
+
 je good_inst
 
 
 jmp badargerror
+;good_inst1:
 
+;mov byte [endofprog],1
 ;mov ah,1
 good_inst:
+
+
+;xor bx,bx
+;mov bl,byte [endofprog]
+;call printHex
+;call pause
 ;;;;;;;;;;;;;;;; lets decide if the arg is 2 or 4 bytes
 
 xor dx,dx
@@ -253,41 +255,222 @@ mov ax,di
 mov cx,2
 div cx
 mov bx,ax
-call printHex
-call pause
 
+mov di,ax
+pop bx
+
+cmp di,7
+jg ptwobytes
+
+;mov bx,si
+;call printHex
+;call pause
+cmp si,2
+jg arglenerror
+
+;call test
+;;;;;;;start of processing one byte arg
+;push dx
+;push di
+;pusha
+push bx
+
+;call test
+call atohex
+
+;mov bx,dx
+;call printHex
+;call pause
+;jmp asm_ret
+
+xor bx,bx
+mov bl,byte [offsetcounter]
+
+add di,0xb0
+mov ax,di
+;call printHex
+;call pause
+;mov ax,di ; ax  has first byte
+
+  
+mov byte [buffer+bx],al
+inc bx
+mov  byte [buffer+bx],dl
+inc bx
+
+mov byte [offsetcounter],bl
 
 pop bx
 
-mov al,byte [es:bx]
-cmp al,57
-jle pnum
+add bx,2
+jmp aaa
+;mov bx,offsetcounter
+;inc bx
+;add offsetcounter,1
 
-mov ah,0
+;xor bx,bx
+;mov bl,byte [buffer]
+;call printHex
 
-sub al,87
-mov ch,al
+;mov bl,byte [buffer+1]
+;call printHex
+
+;xor bx,bx
+;mov bl,byte [buffer+1]
+;call printHex
+
+;mov bl,byte [buffer+1]
+;call printHex
+
+;call pause
+
+
+;xor bx,bx
+;xor ah,ah
+;mov bx,ax
+;call printHex
+;call pause
+
+
+
+;;;;;;;start of processing two bytes arg
+
+
+ptwobytes:
+
+mov cx,2
+add bx,2
+
+
+
+push bx
+xor bx,bx
+mov bl,byte [offsetcounter]
+
+add di,0xb0
+mov ax,di
+;call printHex
+;call pause
+;mov ax,di ; ax  has first byte
+
+  
+mov byte [buffer+bx],al
+inc bx
+mov ax,bx
+
+
+pop bx
+cocksbecauewhynot:
+
+;call printHex
+call atohex
+push bx
+mov bx,ax
+mov  byte [buffer+bx],dl
+inc bx
+
+mov byte [offsetcounter],bl
+mov ax,bx
+
+pop bx
+cmp cx,0
+je aaa0
+sub bx,3
+
+loop cocksbecauewhynot
+aaa0:
+add bx,6
+aaa:
+
+;;;;;;;;;;;was this the last instruction
+
+
+
+cmp byte [es:bx],0x0D
+
+je inc_lcounter
+
+cmp byte [es:bx],0
+je prog_end
+
+cmp byte [es:bx],space
+je sksp
+
+;;;;;;;;;next instruction
+;mov al,byte [es:bx]
+;call pchar
+
+jmp checkinst
+
+inc_lcounter:
+add byte [linecounter],1   
+add bx,2
+jmp aaa
+
+sksp:
+inc bx
+jmp aaa
+
+;;;;;;;;;
+
+prog_end:
+;call test
+call newLine
+xor cx,cx
+
+mov cl,byte [offsetcounter]
+xor di,di
+ph:
+
+xor bx,bx
+mov bl,byte [buffer+di]
+call printHexOneByte
+mov al,space
 call pchar
-call pause
+inc di
+loop ph
 
-pnum:
-cmp ah,1
-je numisfirst
-sub al,48
+jmp asm_ret
+;mov bx,ax
+;call printHex
+;call pause
 
-numisfirst:
-sub al,48
-;mov 
+
+;xor bx,bx
+;mov bl,byte [buffer]
+;call printHex
+
+;mov bl,byte [buffer+1]
+;call printHex
+
+;mov bl,byte [buffer+2]
+;call printHex
+
+;call pause
+
+
+arglenerror:
+
+mov si,lener
+call newLine
+
+
+call printn
+mov al,[linecounter]
+add al,48
+call pchar
+
+jmp asm_ret
 
 
 badargerror:
-pop bx
+;pop bx
 mov si,arg_er
 call newLine
 
 
 call printn
-mov al,dl
+mov al,[linecounter]
 add al,48
 call pchar
 
@@ -301,7 +484,7 @@ call newLine
 
 
 call printn
-mov al,dl
+mov al,[linecounter]
 add al,48
 call pchar
 
@@ -315,6 +498,19 @@ call printn
 
 
 asm_ret:
+;reset variables
+mov byte [linecounter],1
+
+mov byte [offsetcounter],0
+;offset:   db  50 dup   0 
+
+mov cx,500
+
+resetbuffer:
+mov bx,cx
+mov byte [buffer+bx],0
+
+loop resetbuffer
 
 popa
 ret
@@ -322,6 +518,7 @@ ret
 
 one:   dw  0x01
 two:    dw  0x02
+
 asm_command:    db   "asm"
 space:  equ      " "
 ;filename:   db  50 dup   0
@@ -329,7 +526,8 @@ noargs_error_str:   db    "Missing file name argument",0
 mov_in:   db    "mov"
 er_msg:    db    "Error in line ",0
 
-arg_er:    db   "Bad arg error in line ",0
+arg_er:    db   "Instruction arg error in line ",0
+lener:  db  "Instruction Arg length error in line ",0
 
 registers:  db "al" ;b0
             db "cl"
@@ -348,7 +546,16 @@ registers:  db "al" ;b0
             db "si"
             db "di";bf
             
-offsets:   db  0
+;;;;;;;;variables;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;endofprog:  db      0
+linecounter:       db       1            
+offsetcounter:   db   0
+;offset:   db  50 dup   0            
+buffer:   db   500 dup   0    
 
 
 

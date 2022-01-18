@@ -438,7 +438,7 @@ mov bl,byte [es:di]
 ;call pause
 
 cmp bl,0xed
-je ret_f
+je ret_file_notfound
 
 inc di
 inc si
@@ -506,16 +506,129 @@ ret_f:
 pop si
 popa
 ret
+
+ret_file_notfound:
+pop si
+popa
+call newLine
+mov si,filenotf
+call printn
+ret
+
+filenotf:    db    "File not found",0
 ;;;;;;;;;;;;;;;;;;;;
 test:
+pusha
 mov al,"T"
 call pchar
 call pause
+popa
+ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;ascii to integer procedure
+;;;;;atohex(es:bx > pointer to string hex )
+;;;;;return value in dx/dh ; 
+atohex:
+
+push di
+push cx
+push ax
+
+mov di,48
+mov cx,2
+
+pargbyte:
+mov ax,87
+mov dl,byte [es:bx]
+
+cmp dl,57
+cmovbe ax,di
+sub dl,al
+
+;pusha
+
+
+;xor bx,bx
+;mov bl,dl
+;call printHex
+;call pause
+
+;popa
+
+cmp cx,1
+je con
+shl dx,12
+inc bx
+
+
+loop pargbyte
+
+con:
+or dl,dh
+xor dh,dh
+
+pop ax
+pop cx
+pop di
+
 ret
 
 
+;;;;;;;;;;;;;;;;;;;;;;;
+;print hex representation of an integer,integer should be in bx ;  output in format :  0xYY
+;;;;;;;;;;;;;;;;;;;;;;;
+
+printHexOneByte:
+pusha
+
+mov ah,0x0e
+mov al,"0"
+int 0x10
+
+mov ah,0x0e
+mov al,"x"
+int 0x10
+
+mov cl,8
+
+mov dx,bx
+printHexOneBytehead:
+
+mov bx,dx
+
+shl bx,cl
+shr bx,12
+
+cmp bx,9
+jg alphabOneByte
+
+add bx,48
+
+mov ah,0x0e
+mov al,bl
+int 0x10
+
+cmp cl,12
+je retprintHexOneByte
 
 
+add cl,4
+jmp printHexOneBytehead
+alphabOneByte:
 
+add bx,87
 
+mov ah,0x0e
+mov al,bl
+int 0x10
 
+cmp cl,12
+je retprintHexOneByte
+
+add cl,4
+jmp printHexOneBytehead
+
+retprintHexOneByte:
+popa
+ret

@@ -46,9 +46,21 @@ mov bp,0      ;   bd 00 00
 mov si,0      ;   be 00 00
 mov di,0      ;   bf 00 00
 
+mov al,0x78  > 9
+mov bx,0x56eb > 7
 
 
+mov bp,0x0010
+mov dl,0xab
 
+
+__________________________
+
+mov bx,0xdead
+mov al,0xcd
+mov di,0x50be
+
+bb ad de b0 cd bf be 50
 
 
 

@@ -139,7 +139,7 @@ mov ah,0x0e ;print a space
 mov al," "
 int 0x10
 
-mov ah,0x0e ;print a backspace which will move the cursor one char to the left
+mov ah,0x0e ;print a space which will move the cursor one char to the right
 mov al,0x08
 int 0x10
 
